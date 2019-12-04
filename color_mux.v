@@ -1,9 +1,9 @@
-module color_mux(iVGA_CLK, ref_x, ref_y, ADDR, sel, stop, hit, shape, change_shape, reset_ack);
+module color_mux(iVGA_CLK, ref_x, ref_y, ADDR, sel, stop, hit, shape, change_shape, start_over);
 
 //inputs outputs
 input [9:0] ref_x, ref_y;
 input [18:0] ADDR;
-input iVGA_CLK, change_shape, reset_ack;
+input iVGA_CLK, change_shape, start_over;
 
 output reg sel, stop, hit;
 output reg [2:0] shape;
@@ -21,7 +21,7 @@ reg [31:0] count;
 reg [31:0] score;
 reg [31:0] block_size, hori_size, vert_size;
 
-reg clock_by_2;
+reg clock_by_2, clear;
 
 //initial block
 initial begin
@@ -32,14 +32,15 @@ initial begin
 	shape = 3'd0;
 	clock_by_2 = 0;
 	block_size = 32'd20;
-	hori_size = 32'd640;
+	hori_size = 32'd480;
 	vert_size = 32'd480;
+	clear = 0;
 end
 
 //clock divider
 always @(posedge iVGA_CLK) begin
 	count <= count + 1;
-	if(count >= 100) begin
+	if(count >= 32'd1000) begin
 		count <= 0;
 		clock_by_2 = !clock_by_2;
 	end
@@ -47,11 +48,11 @@ always @(posedge iVGA_CLK) begin
 end
 
 //shape and cordinates calc
-always @(posedge iVGA_CLK) begin
-	x = ADDR%hori_size;
-	y = ADDR/hori_size;
-	print_x = x/block_size;
-	print_y = y/block_size;
+always @(posedge ADDR) begin
+	x = ADDR%640;
+	y = ADDR/640;
+	print_x = x/20;
+	print_y = y/20;
 	print_cor = print_y * 32 + print_x; //display blocks or background
 	mat_x = ref_x/block_size;
 	mat_y = ref_y/block_size;
@@ -142,27 +143,27 @@ always @(posedge iVGA_CLK) begin
 	endcase
 end
 	
-		integer i, j;
+		integer i, j, k;
 //stop logic
-always @(posedge iVGA_CLK) begin
+always @(posedge ADDR) begin
 		if(exist[cor_stop_1]!=0 || exist[cor_stop_2]!=0 || 
 				exist[cor_stop_3]!=0 || exist[cor_stop_4]!=0) 
 		begin
-			stop <= 1'b1;
-			exist[cor_1] <= 1'b1;
-			exist[cor_2] <= 1'b1;
-			exist[cor_3] <= 1'b1;
-			exist[cor_4] <= 1'b1;
+			stop = 1'b1;
+			exist[cor_1] = 1'b1;
+			exist[cor_2] = 1'b1;
+			exist[cor_3] = 1'b1;
+			exist[cor_4] = 1'b1;
 		end
 		else if(yd >= (vert_size - 1)) begin 
-			stop <= 1'b1;
-			exist[cor_1] <= 1'b1;
-			exist[cor_2] <= 1'b1;
-			exist[cor_3] <= 1'b1;
-			exist[cor_4] <= 1'b1;
+			stop = 1'b1;
+			exist[cor_1] = 1'b1;
+			exist[cor_2] = 1'b1;
+			exist[cor_3] = 1'b1;
+			exist[cor_4] = 1'b1;
 		end
 		else begin
-			stop <= 0;
+			stop = 0;
 		end
 
 		if(stop == 1'b1) begin
@@ -172,22 +173,32 @@ always @(posedge iVGA_CLK) begin
 					exist[i*32+8] & exist[i*32+9] & exist[i*32+10] & exist[i*32+11] &
 					exist[i*32+12] & exist[i*32+13] & exist[i*32+14] & exist[i*32+15] &
 					exist[i*32+16] & exist[i*32+17] & exist[i*32+18] & exist[i*32+19] &
-					exist[i*32+20] & exist[i*32+21] & exist[i*32+22] & exist[i*32+23] &
-					exist[i*32+24] & exist[i*32+25] & exist[i*32+26] & exist[i*32+27] &
-					exist[i*32+28] & exist[i*32+29] & exist[i*32+30] & exist[i*32+31]) == 1)
+					exist[i*32+20] & exist[i*32+21] & exist[i*32+22] & exist[i*32+23] ) == 1)
 					begin
-						for(j=0; j<32; j=j+1) begin
-							exist[i*32+j] <= 1'b0;
-						end
+						clear = 1;
 					end
+				else clear = 0;
+			end
+		end
+		if(clear == 1) begin
+			score = score + 1;
+			stop = 0;
+			for(i=23; i>9; i=i-1) begin
+				for(j=0; j<24; j=j+1) begin
+					exist[i*32+j] = exist[(i-1)*32 + j];
 				end
+			end
+		end
+		
+		if(start_over == 1) begin
+			exist = 768'b0;
 		end
 end
 
 //hit logic
 always @(posedge iVGA_CLK) begin
 	if ((ref_x<block_size) || (exist[cor_hit_left_1]!=0) || (exist[cor_hit_left_2]!=0) ||
-			(exist[cor_hit_left_3]!=0) || (exist[cor_hit_left_4]!=0))
+			(exist[cor_hit_left_3]!=0) || (exist[cor_hit_left_4]!=0) || ref_x >=480)
 	begin 
 		hit = 1;
 	end
@@ -201,25 +212,35 @@ always @(posedge iVGA_CLK) begin
 	else hit = 0;	
 end
 
-//display logic
-always @(ADDR) begin
-	if (exist[print_cor] != 1'b0) sel <= 1;
-	//else if(exist[print_cor] == 1'b0) sel <= 0;
-	else if(x> xl && x<xr && y >yu && y<yd) sel <= 1; //current block ref points
-	else sel <= 0;
-end
+
 
 //shape change logic
-always @(posedge clock_by_2) begin
+always @(posedge ADDR) begin
 	if(ref_x == 10'd280 && ref_y == 0) begin
 			case(shape)
 				3'd0: shape = 3'd1;
-				3'd1: shape = 3'd2;
+				3'd1: shape = 3'd0;
 				3'd2: shape = 3'd0;
 				default: shape = 3'd0;
 			endcase
 	end
 end
 
+always @(posedge clear) begin
+	case(score)
+	
+	endcase
+end
+
+
+
+//display logic
+always @(ADDR) begin
+	if (exist[print_cor] != 1'b0) sel = 1;
+	//else if(exist[print_cor] == 1'b0) sel <= 0;
+	else if(x> xl && x<xr && y >yu && y<yd) sel = 1; //current block ref points
+	else if(x > 480 && x<500) sel = 1;
+	else sel = 0;
+end
 
 endmodule

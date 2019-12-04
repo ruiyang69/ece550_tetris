@@ -32,6 +32,7 @@ begin
 		if(stop == 1 || start_over==1) begin
 			ref_x <= 280;
 			ref_y <= 0;
+			start_over <= 0;
 		end
 		
 		else begin
@@ -52,7 +53,6 @@ begin
 				else if(!right && !hit) begin
 					if(ref_x < (hori_size - 4*block_size)) ref_x <= ref_x + block_size;
 				end
-				else start_over <= 0;
 			end
 			
 			3'd2: begin //long vert rec
@@ -70,7 +70,6 @@ begin
 				else if(!right && !hit) begin
 					if(ref_x < (hori_size - block_size)) ref_x <= ref_x + block_size;
 				end
-				else start_over <= 0;
 			
 			end
 		
@@ -91,7 +90,6 @@ begin
 				else if(!right && !hit) begin
 					if(ref_x < (hori_size - 2*block_size)) ref_x <= ref_x + block_size;
 				end
-				else start_over <= 0;
 			end
 			endcase
 		end
