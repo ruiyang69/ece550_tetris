@@ -1,17 +1,17 @@
-module color_mux(iVGA_CLK, ref_x, ref_y, ADDR, sel, stop, hit, shape, change_shape, start_over);
+module color_mux(iVGA_CLK, ref_x, ref_y, ADDR, sel, stop, hit, shape, change_shape, start_over, clear);
 
 //inputs outputs
 input [9:0] ref_x, ref_y;
 input [18:0] ADDR;
 input iVGA_CLK, change_shape, start_over;
 
-output reg sel, stop, hit;
-output reg [2:0] shape;
+output reg sel, stop, hit, clear;
+output reg [3:0] shape;
 
 
 //local variable
 reg [31:0] xl, xr, yu, yd, x, y, print_x, print_y, mat_x, mat_y;
-reg [31:0] cor_1, cor_2, cor_3, cor_4;
+reg [31:0] cor_1, cor_2, cor_3, cor_4, exc_1, exc_2;
 reg [31:0] cor_stop_1, cor_stop_2, cor_stop_3, cor_stop_4; 
 reg [31:0] cor_hit_left_1, cor_hit_left_2, cor_hit_left_3, cor_hit_left_4;
 reg [31:0] cor_hit_right_1, cor_hit_right_2, cor_hit_right_3, cor_hit_right_4, print_cor;
@@ -21,7 +21,7 @@ reg [31:0] count;
 reg [31:0] score;
 reg [31:0] block_size, hori_size, vert_size;
 
-reg clock_by_2, clear;
+reg clock_by_2;
 
 //initial block
 initial begin
@@ -29,7 +29,7 @@ initial begin
 	stop = 0;
 	hit = 0;
 	score = 0;
-	shape = 3'd0;
+	shape = 4'd0;
 	clock_by_2 = 0;
 	block_size = 32'd20;
 	hori_size = 32'd480;
@@ -56,9 +56,11 @@ always @(posedge ADDR) begin
 	print_cor = print_y * 32 + print_x; //display blocks or background
 	mat_x = ref_x/block_size;
 	mat_y = ref_y/block_size;
+	exc_1 = 0;
+	exc_2 = 0;
 	
 	case(shape) 
-		3'd0: begin  //square
+		4'd0: begin  //square
 			xl = ref_x;
 			xr = ref_x + block_size*2;
 			yu = ref_y;
@@ -84,7 +86,7 @@ always @(posedge ADDR) begin
 			cor_hit_right_4 = 0;
 		end
 	
-		3'd1: begin  //long hori rectangle
+		4'd1: begin  //long hori rectangle
 			xl = ref_x;
 			xr = ref_x + 4*block_size;
 			yu = ref_y;
@@ -105,16 +107,15 @@ always @(posedge ADDR) begin
 			cor_hit_right_1 = cor_4 + 1;
 			cor_hit_right_2 = 0;
 			cor_hit_right_3 = 0;
-			cor_hit_right_4 = 0;
-		
+			cor_hit_right_4 = 0;	
 		end
 		
-		3'd2: begin  //long vert rectangle
+		4'd2: begin  //long vert rectangle
 			xl = ref_x;
 			xr = ref_x + block_size;
 			yu = ref_y;
 			yd = ref_y + 4*block_size;
-			cor_1 = mat_y * 16 + mat_x;
+			cor_1 = mat_y * 32 + mat_x;
 			cor_2 = (mat_y+1) * 32 + mat_x;
 			cor_3 = (mat_y+2) * 32 + mat_x;
 			cor_4 = (mat_y+3) * 32 + mat_x;
@@ -134,11 +135,347 @@ always @(posedge ADDR) begin
 		
 		end
 		
-		3'd3:;
+		4'd3: begin  // one up center, three down a row
+			xl = ref_x;
+			xr = ref_x - block_size;
+			yu = ref_y;
+			yd = ref_y + 2*block_size;
+			cor_1 = mat_y * 32 + mat_x;
+			cor_2 = (mat_y+1) * 32 + mat_x - 1;
+			cor_3 = (mat_y+1) * 32 + mat_x;
+			cor_4 = (mat_y+1) * 32 + mat_x + 1;
+			exc_1 = cor_1 - 1;
+			exc_2 = cor_1 + 1;
+			
+			cor_stop_1 = 0; 
+			cor_stop_2 = (mat_y+2) * 32 + mat_x - 1;
+			cor_stop_3 = (mat_y+2) * 32 + mat_x;
+			cor_stop_4 = (mat_y+2) * 32 + mat_x + 1;
+			
+			cor_hit_left_1 = cor_1 - 1;
+			cor_hit_left_2 = cor_2 - 1;
+			cor_hit_left_3 = 0;
+			cor_hit_left_4 = 0;
+			cor_hit_right_1 = cor_1 + 1;
+			cor_hit_right_2 = 0;
+			cor_hit_right_3 = 0;
+			cor_hit_right_4 = cor_4 + 1;
+		end
 		
-		3'd4:;
+		4'd4: begin
+			xl = ref_x;
+			xr = ref_x + 2*block_size;
+			yu = ref_y;
+			yd = ref_y + 3*block_size;
+			cor_1 = mat_y * 32 + mat_x;
+			cor_2 = (mat_y+1) * 32 + mat_x;
+			cor_3 = (mat_y+1) * 32 + mat_x + 1;
+			cor_4 = (mat_y+2) * 32 + mat_x;
+			exc_1 = cor_1 + 1;
+			exc_2 = cor_4 + 1;
+			
+			cor_stop_1 = 0; 
+			cor_stop_2 = 0;
+			cor_stop_3 = (mat_y+2) * 32 + mat_x + 1;
+			cor_stop_4 = (mat_y+3) * 32 + mat_x;
+			
+			cor_hit_left_1 = cor_1 - 1;
+			cor_hit_left_2 = cor_2 - 1;
+			cor_hit_left_3 = 0;
+			cor_hit_left_4 = cor_4 - 1;
+			cor_hit_right_1 = cor_1 + 1;
+			cor_hit_right_2 = 0;
+			cor_hit_right_3 = cor_3 + 1;
+			cor_hit_right_4 = cor_4 + 1;
+		end
 		
-		default:;
+		4'd5: begin
+			xl = ref_x;
+			xr = ref_x + 3*block_size;
+			yu = ref_y;
+			yd = ref_y + 2*block_size;
+			cor_1 = mat_y * 32 + mat_x;
+			cor_2 = cor_1 + 1;
+			cor_3 = cor_2 + 1;
+			cor_4 = (mat_y+1) * 32 + mat_x + 1;
+			exc_1 = cor_4 - 1;
+			exc_2 = cor_4 + 1;
+			
+			cor_stop_1 = exc_1; 
+			cor_stop_2 = 0;
+			cor_stop_3 = exc_2;
+			cor_stop_4 = 0;
+			
+			cor_hit_left_1 = cor_1 - 1;
+			cor_hit_left_2 = 0;
+			cor_hit_left_3 = 0;
+			cor_hit_left_4 = cor_4 - 1;
+			cor_hit_right_1 = 0;
+			cor_hit_right_2 = 0;
+			cor_hit_right_3 = cor_3 + 1;
+			cor_hit_right_4 = cor_4 + 1;
+		end
+		
+		4'd6: begin
+			xl = ref_x - block_size;
+			xr = ref_x + block_size;
+			yu = ref_y;
+			yd = ref_y + 3*block_size;
+			cor_1 = mat_y * 32 + mat_x;
+			cor_2 = (mat_y+1)*32 + mat_x - 1;
+			cor_3 = cor_2 + 1;
+			cor_4 = (mat_y+2) * 32 + mat_x;
+			exc_1 = cor_1 - 1;
+			exc_2 = cor_4 - 1;
+			
+			cor_stop_1 = 0; 
+			cor_stop_2 = exc_2;
+			cor_stop_3 = 0;
+			cor_stop_4 = (mat_y+3)*32 + mat_x;
+			
+			cor_hit_left_1 = cor_1 - 1;
+			cor_hit_left_2 = cor_2 - 1;
+			cor_hit_left_3 = 0;
+			cor_hit_left_4 = cor_4 - 1;
+			
+			cor_hit_right_1 = cor_1 + 1;
+			cor_hit_right_2 = 0;
+			cor_hit_right_3 = cor_3 + 1;
+			cor_hit_right_4 = cor_4 + 1;
+		end
+		
+		4'd7: begin
+			xl = ref_x;
+			xr = ref_x + 2*block_size;
+			yu = ref_y;
+			yd = ref_y + 3*block_size;
+			cor_1 = mat_y * 32 + mat_x;
+			cor_2 = (mat_y+1)*32 + mat_x;
+			cor_3 = (mat_y+2)*32 + mat_x;
+			cor_4 = cor_3 + 1;
+			exc_1 = cor_1 + 1;
+			exc_2 = cor_2 + 1;
+			
+			cor_stop_1 = 0; 
+			cor_stop_2 = 0;
+			cor_stop_3 = (mat_y+3)*32 + mat_x;
+			cor_stop_4 = cor_stop_3 + 1;
+			
+			cor_hit_left_1 = cor_1 - 1;
+			cor_hit_left_2 = cor_2 - 1;
+			cor_hit_left_3 = cor_3 - 1;
+			cor_hit_left_4 = 0;
+			
+			cor_hit_right_1 = cor_1 + 1;
+			cor_hit_right_2 = cor_2 + 1;
+			cor_hit_right_3 = 0;
+			cor_hit_right_4 = cor_4 + 1;
+		end
+		
+		4'd8: begin
+			xl = ref_x;
+			xr = ref_x + 3*block_size;
+			yu = ref_y;
+			yd = ref_y + 2*block_size;
+			cor_1 = mat_y * 32 + mat_x;
+			cor_2 = cor_1 + 1;
+			cor_3 = cor_2 + 1;
+			cor_4 = (mat_y+1) * 32 + mat_x;
+			
+			exc_1 = cor_4 + 1;
+			exc_2 = cor_4 + 2;
+			
+			cor_stop_1 = 0; 
+			cor_stop_2 = cor_4 + 1;
+			cor_stop_3 = cor_4 + 2;
+			cor_stop_4 = (mat_y+2) * 32 + mat_x;
+			
+			cor_hit_left_1 = cor_1 - 1;
+			cor_hit_left_2 = 0;
+			cor_hit_left_3 = 0;
+			cor_hit_left_4 = cor_4 - 1;
+			
+			cor_hit_right_1 = 0;
+			cor_hit_right_2 = 0;
+			cor_hit_right_3 = cor_3 + 1;
+			cor_hit_right_4 = cor_4 + 1;
+		end
+		
+		4'd9: begin
+			xl = ref_x;
+			xr = ref_x + 2*block_size;
+			yu = ref_y;
+			yd = ref_y + 3*block_size;
+			cor_1 = mat_y * 32 + mat_x;
+			cor_2 = cor_1 + 1;
+			cor_3 = (mat_y+1)*32 + mat_x + 1;
+			cor_4 = (mat_y+2)*32 + mat_x + 1;
+			
+			exc_1 = cor_3 - 1;
+			exc_2 = cor_4 - 1;
+			
+			cor_stop_1 = cor_3 - 1; 
+			cor_stop_2 = cor_4 + 1;
+			cor_stop_3 = cor_4 + 2;
+			cor_stop_4 = (mat_y+3) * 32 + mat_x + 1;
+			
+			cor_hit_left_1 = cor_1 - 1;
+			cor_hit_left_2 = cor_3 - 1;
+			cor_hit_left_3 = 0;
+			cor_hit_left_4 = cor_4 - 1;
+			
+			cor_hit_right_1 = 0;
+			cor_hit_right_2 = cor_2 + 1;
+			cor_hit_right_3 = cor_3 + 1;
+			cor_hit_right_4 = cor_4 + 1;
+		end
+		
+		4'd10: begin
+			xl = ref_x - 2*block_size;
+			xr = ref_x + block_size;
+			yu = ref_y;
+			yd = ref_y + 2*block_size;
+			cor_1 = mat_y * 32 + mat_x;
+			cor_2 = (mat_y+1)*32 + mat_x - 2;
+			cor_3 = cor_2 + 1;
+			cor_4 = cor_3 + 1;
+			
+			exc_1 = cor_1 - 2;
+			exc_2 = cor_1 - 1;
+			
+			cor_stop_1 = 0; 
+			cor_stop_2 = (mat_y+2)*32 + mat_x - 2;
+			cor_stop_3 = (mat_y+2)*32 + mat_x - 1;
+			cor_stop_4 = (mat_y+2)*32 + mat_x;
+			
+			cor_hit_left_1 = cor_1 - 1;
+			cor_hit_left_2 = cor_2 - 1;
+			cor_hit_left_3 = 0;
+			cor_hit_left_4 = 0;
+			
+			cor_hit_right_1 = cor_1 + 1;
+			cor_hit_right_2 = 0;
+			cor_hit_right_3 = 0;
+			cor_hit_right_4 = cor_4 + 1;
+		end
+		
+		4'd11: begin
+			xl = ref_x;
+			xr = ref_x + 2*block_size;
+			yu = ref_y;
+			yd = ref_y + 3*block_size;
+			cor_1 = mat_y * 32 + mat_x;
+			cor_2 = (mat_y+1)*32 + mat_x;
+			cor_3 = cor_2 + 1;
+			cor_4 = (mat_y+2)*32 + mat_x + 1;
+			
+			exc_1 = cor_1 + 1;
+			exc_2 = cor_4 - 1;
+			
+			cor_stop_1 = 0; 
+			cor_stop_2 = cor_4 - 1;
+			cor_stop_3 = 0;
+			cor_stop_4 = (mat_y+3)*32 + mat_x + 1;
+			
+			cor_hit_left_1 = cor_1 - 1;
+			cor_hit_left_2 = cor_2 - 1;
+			cor_hit_left_3 = 0;
+			cor_hit_left_4 = cor_4 - 1;
+			
+			cor_hit_right_1 = cor_1 + 1;
+			cor_hit_right_2 = 0;
+			cor_hit_right_3 = cor_3 + 1;
+			cor_hit_right_4 = cor_4 + 1;
+		end
+		
+		4'd12: begin
+			xl = ref_x - block_size;
+			xr = ref_x + 2*block_size;
+			yu = ref_y;
+			yd = ref_y + 2*block_size;
+			cor_1 = mat_y * 32 + mat_x;
+			cor_2 = cor_1 + 1;
+			cor_3 = (mat_y+1)*32 + mat_x - 1;
+			cor_4 = cor_3 + 1;
+			
+			exc_1 = cor_1 - 1;
+			exc_2 = cor_4 + 1;
+			
+			cor_stop_1 = 0; 
+			cor_stop_2 = cor_4 + 1;
+			cor_stop_3 = (mat_y+2)*32 + mat_x - 1;
+			cor_stop_4 = (mat_y+2)*32 + mat_x;
+			
+			cor_hit_left_1 = cor_1 - 1;
+			cor_hit_left_2 = 0;
+			cor_hit_left_3 = cor_3 - 1;
+			cor_hit_left_4 = 0;
+			
+			cor_hit_right_1 = 0;
+			cor_hit_right_2 = cor_2 + 1;
+			cor_hit_right_3 = 0;
+			cor_hit_right_4 = cor_4 + 1;
+		end
+		
+		4'd13: begin
+			xl = ref_x - block_size;
+			xr = ref_x + block_size;
+			yu = ref_y;
+			yd = ref_y + 3*block_size;
+			
+			cor_1 = mat_y * 32 + mat_x;
+			cor_2 = (mat_y+1) * 32 + mat_x - 1;
+			cor_3 = cor_2 + 1;
+			cor_4 = (mat_y+2) * 32 + mat_x - 1;
+			
+			exc_1 = cor_1 - 1;
+			exc_2 = cor_4 + 1;
+			
+			cor_stop_1 = 0; 
+			cor_stop_2 = 0;
+			cor_stop_3 = cor_4 + 1;
+			cor_stop_4 = (mat_y+3) * 32 + mat_x - 1;
+			
+			cor_hit_left_1 = cor_1 - 1;
+			cor_hit_left_2 = cor_2 - 1;
+			cor_hit_left_3 = 0;
+			cor_hit_left_4 = cor_4 - 1;
+			
+			cor_hit_right_1 = cor_1 + 1;
+			cor_hit_right_2 = 0;
+			cor_hit_right_3 = cor_3 + 1;
+			cor_hit_right_4 = cor_4 + 1;
+		end
+		
+		default: begin //shape 14
+			xl = ref_x;
+			xr = ref_x + 3*block_size;
+			yu = ref_y;
+			yd = ref_y + 2*block_size;
+			
+			cor_1 = mat_y * 32 + mat_x;
+			cor_2 = cor_1 + 1;
+			cor_3 = (mat_y+1) * 32 + mat_x + 1;
+			cor_4 = cor_3 + 1;
+			
+			exc_1 = cor_2 + 1;
+			exc_2 = cor_3 - 1;
+			
+			cor_stop_1 = cor_3 - 1; 
+			cor_stop_2 = 0;
+			cor_stop_3 = (mat_y+2) * 32 + mat_x + 1;
+			cor_stop_4 = (mat_y+2) * 32 + mat_x + 2;
+			
+			cor_hit_left_1 = cor_1 - 1;
+			cor_hit_left_2 = 0;
+			cor_hit_left_3 = cor_3 - 1;
+			cor_hit_left_4 = 0;
+			
+			cor_hit_right_1 = 0;
+			cor_hit_right_2 = cor_2 + 1;
+			cor_hit_right_3 = 0;
+			cor_hit_right_4 = cor_4 + 1;
+		end
 	
 	endcase
 end
@@ -192,7 +529,240 @@ always @(posedge ADDR) begin
 		
 		if(start_over == 1) begin
 			exist = 768'b0;
+			score = 0;
 		end
+		
+		case (score) 
+			32'd0: begin
+				exist[2*32 + 27] = 1'b1;
+				exist[2*32 + 28] = 1'b1;
+				exist[2*32 + 29] = 1'b1;
+				exist[2*32 + 30] = 1'b1;
+				
+				exist[3*32 + 27] = 1'b1;
+				exist[3*32 + 30] = 1'b1;
+				
+				exist[4*32 + 27] = 1'b1;
+				exist[4*32 + 28] = 1'b0;
+				exist[4*32 + 29] = 1'b0;
+				exist[4*32 + 30] = 1'b1;
+				
+				exist[5*32 + 27] = 1'b1;
+				exist[5*32 + 30] = 1'b1;
+				
+				exist[6*32 + 27] = 1'b1;
+				exist[6*32 + 28] = 1'b1;
+				exist[6*32 + 29] = 1'b1;
+				exist[6*32 + 30] = 1'b1;
+			end
+			
+			32'd1: begin
+				exist[2*32 + 27] = 1'b1;
+				exist[2*32 + 28] = 1'b0;
+				exist[2*32 + 29] = 1'b0;
+				exist[2*32 + 30] = 1'b0;
+				
+				exist[3*32 + 27] = 1'b1;
+				exist[3*32 + 30] = 1'b0;
+				
+				exist[4*32 + 27] = 1'b1;
+				exist[4*32 + 28] = 1'b0;
+				exist[4*32 + 29] = 1'b0;
+				exist[4*32 + 30] = 1'b0;
+				
+				exist[5*32 + 27] = 1'b1;
+				exist[5*32 + 30] = 1'b0;
+				
+				exist[6*32 + 27] = 1'b1;
+				exist[6*32 + 28] = 1'b0;
+				exist[6*32 + 29] = 1'b0;
+				exist[6*32 + 30] = 1'b0;
+			end
+			
+			32'd2: begin
+				exist[2*32 + 27] = 1'b1;
+				exist[2*32 + 28] = 1'b1;
+				exist[2*32 + 29] = 1'b1;
+				exist[2*32 + 30] = 1'b1;
+				
+				exist[3*32 + 27] = 1'b0;
+				exist[3*32 + 30] = 1'b1;
+				
+				exist[4*32 + 27] = 1'b1;
+				exist[4*32 + 28] = 1'b1;
+				exist[4*32 + 29] = 1'b1;
+				exist[4*32 + 30] = 1'b1;
+				
+				exist[5*32 + 27] = 1'b1;
+				exist[5*32 + 30] = 1'b0;
+				
+				exist[6*32 + 27] = 1'b1;
+				exist[6*32 + 28] = 1'b1;
+				exist[6*32 + 29] = 1'b1;
+				exist[6*32 + 30] = 1'b1;
+			end
+			
+			32'd3: begin
+				exist[2*32 + 27] = 1'b1;
+				exist[2*32 + 28] = 1'b1;
+				exist[2*32 + 29] = 1'b1;
+				exist[2*32 + 30] = 1'b1;
+				
+				exist[3*32 + 27] = 1'b0;
+				exist[3*32 + 30] = 1'b1;
+				
+				exist[4*32 + 27] = 1'b1;
+				exist[4*32 + 28] = 1'b1;
+				exist[4*32 + 29] = 1'b1;
+				exist[4*32 + 30] = 1'b1;
+				
+				exist[5*32 + 27] = 1'b0;
+				exist[5*32 + 30] = 1'b1;
+				
+				exist[6*32 + 27] = 1'b1;
+				exist[6*32 + 28] = 1'b1;
+				exist[6*32 + 29] = 1'b1;
+				exist[6*32 + 30] = 1'b1;
+			end
+			
+			32'd4: begin
+				exist[2*32 + 27] = 1'b1;
+				exist[2*32 + 28] = 1'b0;
+				exist[2*32 + 29] = 1'b0;
+				exist[2*32 + 30] = 1'b1;
+				
+				exist[3*32 + 27] = 1'b1;
+				exist[3*32 + 30] = 1'b1;
+				
+				exist[4*32 + 27] = 1'b1;
+				exist[4*32 + 28] = 1'b1;
+				exist[4*32 + 29] = 1'b1;
+				exist[4*32 + 30] = 1'b1;
+				
+				exist[5*32 + 27] = 1'b0;
+				exist[5*32 + 30] = 1'b1;
+				
+				exist[6*32 + 27] = 1'b0;
+				exist[6*32 + 28] = 1'b0;
+				exist[6*32 + 29] = 1'b0;
+				exist[6*32 + 30] = 1'b1;
+			end
+			
+			32'd5: begin
+				exist[2*32 + 27] = 1'b1;
+				exist[2*32 + 28] = 1'b1;
+				exist[2*32 + 29] = 1'b1;
+				exist[2*32 + 30] = 1'b1;
+				
+				exist[3*32 + 27] = 1'b1;
+				exist[3*32 + 30] = 1'b0;
+				
+				exist[4*32 + 27] = 1'b1;
+				exist[4*32 + 28] = 1'b1;
+				exist[4*32 + 29] = 1'b1;
+				exist[4*32 + 30] = 1'b1;
+				
+				exist[5*32 + 27] = 1'b0;
+				exist[5*32 + 30] = 1'b1;
+				
+				exist[6*32 + 27] = 1'b1;
+				exist[6*32 + 28] = 1'b1;
+				exist[6*32 + 29] = 1'b1;
+				exist[6*32 + 30] = 1'b1;
+			end
+			
+			32'd6: begin
+				exist[2*32 + 27] = 1'b1;
+				exist[2*32 + 28] = 1'b1;
+				exist[2*32 + 29] = 1'b1;
+				exist[2*32 + 30] = 1'b1;
+				
+				exist[3*32 + 27] = 1'b1;
+				exist[3*32 + 30] = 1'b0;
+				
+				exist[4*32 + 27] = 1'b1;
+				exist[4*32 + 28] = 1'b1;
+				exist[4*32 + 29] = 1'b1;
+				exist[4*32 + 30] = 1'b1;
+				
+				exist[5*32 + 27] = 1'b1;
+				exist[5*32 + 30] = 1'b1;
+				
+				exist[6*32 + 27] = 1'b1;
+				exist[6*32 + 28] = 1'b1;
+				exist[6*32 + 29] = 1'b1;
+				exist[6*32 + 30] = 1'b1;
+			end
+			
+			32'd7: begin
+				exist[2*32 + 27] = 1'b1;
+				exist[2*32 + 28] = 1'b1;
+				exist[2*32 + 29] = 1'b1;
+				exist[2*32 + 30] = 1'b1;
+				
+				exist[3*32 + 27] = 1'b0;
+				exist[3*32 + 30] = 1'b1;
+				
+				exist[4*32 + 27] = 1'b0;
+				exist[4*32 + 28] = 1'b0;
+				exist[4*32 + 29] = 1'b0;
+				exist[4*32 + 30] = 1'b1;
+				
+				exist[5*32 + 27] = 1'b0;
+				exist[5*32 + 30] = 1'b1;
+				
+				exist[6*32 + 27] = 1'b0;
+				exist[6*32 + 28] = 1'b0;
+				exist[6*32 + 29] = 1'b0;
+				exist[6*32 + 30] = 1'b1;
+			end
+			
+			32'd8: begin
+				exist[2*32 + 27] = 1'b1;
+				exist[2*32 + 28] = 1'b1;
+				exist[2*32 + 29] = 1'b1;
+				exist[2*32 + 30] = 1'b1;
+				
+				exist[3*32 + 27] = 1'b1;
+				exist[3*32 + 30] = 1'b1;
+				
+				exist[4*32 + 27] = 1'b1;
+				exist[4*32 + 28] = 1'b1;
+				exist[4*32 + 29] = 1'b1;
+				exist[4*32 + 30] = 1'b1;
+				
+				exist[5*32 + 27] = 1'b1;
+				exist[5*32 + 30] = 1'b1;
+				
+				exist[6*32 + 27] = 1'b1;
+				exist[6*32 + 28] = 1'b1;
+				exist[6*32 + 29] = 1'b1;
+				exist[6*32 + 30] = 1'b1;
+			end
+			
+			default: begin
+				exist[2*32 + 27] = 1'b1;
+				exist[2*32 + 28] = 1'b1;
+				exist[2*32 + 29] = 1'b1;
+				exist[2*32 + 30] = 1'b1;
+				
+				exist[3*32 + 27] = 1'b1;
+				exist[3*32 + 30] = 1'b1;
+				
+				exist[4*32 + 27] = 1'b1;
+				exist[4*32 + 28] = 1'b1;
+				exist[4*32 + 29] = 1'b1;
+				exist[4*32 + 30] = 1'b1;
+				
+				exist[5*32 + 27] = 1'b0;
+				exist[5*32 + 30] = 1'b1;
+				
+				exist[6*32 + 27] = 1'b1;
+				exist[6*32 + 28] = 1'b1;
+				exist[6*32 + 29] = 1'b1;
+				exist[6*32 + 30] = 1'b1;	
+			end
+		endcase
 end
 
 //hit logic
@@ -218,18 +788,24 @@ end
 always @(posedge ADDR) begin
 	if(ref_x == 10'd280 && ref_y == 0) begin
 			case(shape)
-				3'd0: shape = 3'd1;
-				3'd1: shape = 3'd0;
-				3'd2: shape = 3'd0;
-				default: shape = 3'd0;
+				4'd0: shape = 4'd1;
+				4'd1: shape = 4'd2;
+				4'd2: shape = 4'd3;
+				4'd3: shape = 4'd4;
+				4'd4: shape = 4'd5;
+				4'd5: shape = 4'd6;
+				4'd6: shape = 4'd7;
+				4'd7: shape = 4'd8;
+				4'd8: shape = 4'd9;
+				4'd9: shape = 4'd10;
+				4'd10: shape = 4'd11;
+				4'd11: shape = 4'd12;
+				4'd12: shape = 4'd13;
+				4'd13: shape = 4'd14;
+				4'd14: shape = 4'd0;
+				default: shape = 4'd0;
 			endcase
 	end
-end
-
-always @(posedge clear) begin
-	case(score)
-	
-	endcase
 end
 
 
@@ -237,9 +813,8 @@ end
 //display logic
 always @(ADDR) begin
 	if (exist[print_cor] != 1'b0) sel = 1;
-	//else if(exist[print_cor] == 1'b0) sel <= 0;
-	else if(x> xl && x<xr && y >yu && y<yd) sel = 1; //current block ref points
-	else if(x > 480 && x<500) sel = 1;
+	else if(x>xl && x<xr && y>yu && y<yd && print_cor!=exc_1 && print_cor!=exc_2) sel = 1; //current block ref points
+	else if(x > 480 && x < 500) sel = 1;
 	else sel = 0;
 end
 

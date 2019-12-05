@@ -1,6 +1,6 @@
-module tetris(iVGA_CLK, up,left, down, right, ref_x, ref_y, stop, hit, shape, change_shape, start_over);
+module tetris(iVGA_CLK, up,left, down, right, ref_x, ref_y, stop, hit, shape, change_shape, start_over, clear);
 
-input iVGA_CLK, up,left, down,right, stop, hit;
+input iVGA_CLK, up,left, down,right, stop, hit, clear;
 input [2:0] shape;
 output reg [9:0] ref_x, ref_y;
 output reg change_shape, start_over;
@@ -36,7 +36,9 @@ begin
 		end
 		
 		else begin
-			
+			if(clear == 1) begin
+				speed_init = speed_init + 2;
+			end
 			case(shape)
 			3'd1: begin //long hori rectangle
 				if( ref_y < (vert_size - block_size)) ref_y <= ref_y + speed_init;

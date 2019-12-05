@@ -16,7 +16,8 @@ module vga_controller(iRST_n,
 							 hit,
 							 shape,
 							 change_shape,
-							 reset_ack
+							 start_over,
+							 clear
 							 );
 
 	
@@ -32,8 +33,8 @@ output [7:0] r_data;
 input [9:0] x_cor, y_cor;
 
 //recitation 6 inputs & variables
-input up, left, down, right, change_shape, reset_ack;  
-output stop, hit;
+input up, left, down, right, change_shape, start_over;  
+output stop, hit, clear;
 output [2:0] shape;
 
 reg [9:0] ref_x;
@@ -100,7 +101,8 @@ color_mux color_mux(
 	.hit(hit),
 	.shape(shape),
 	.change_shape(change_shape),
-	.reset_ack(reset_ack)
+	.start_over(start_over),
+	.clear(clear)
 	);
 	
 //////Color table output
