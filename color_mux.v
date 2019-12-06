@@ -6,7 +6,7 @@ input [18:0] ADDR;
 input iVGA_CLK, change_shape, start_over;
 
 output reg sel, stop, hit, clear;
-output reg [3:0] shape;
+output reg [31:0] shape;
 
 
 //local variable
@@ -136,8 +136,8 @@ always @(posedge ADDR) begin
 		end
 		
 		4'd3: begin  // one up center, three down a row
-			xl = ref_x;
-			xr = ref_x - block_size;
+			xl = ref_x - block_size;
+			xr = ref_x + block_size;
 			yu = ref_y;
 			yd = ref_y + 2*block_size;
 			cor_1 = mat_y * 32 + mat_x;

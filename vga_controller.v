@@ -35,7 +35,7 @@ input [9:0] x_cor, y_cor;
 //recitation 6 inputs & variables
 input up, left, down, right, change_shape, start_over;  
 output stop, hit, clear;
-output [2:0] shape;
+output [31:0] shape;
 
 reg [9:0] ref_x;
 reg [9:0] ref_y;

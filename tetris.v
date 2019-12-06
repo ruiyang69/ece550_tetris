@@ -1,7 +1,7 @@
 module tetris(iVGA_CLK, up,left, down, right, ref_x, ref_y, stop, hit, shape, change_shape, start_over, clear);
 
 input iVGA_CLK, up,left, down,right, stop, hit, clear;
-input [2:0] shape;
+input [31:0] shape;
 output reg [9:0] ref_x, ref_y;
 output reg change_shape, start_over;
 
@@ -40,7 +40,7 @@ begin
 				speed_init = speed_init + 2;
 			end
 			case(shape)
-			3'd1: begin //long hori rectangle
+			4'd1: begin //long hori rectangle
 				if( ref_y < (vert_size - block_size)) ref_y <= ref_y + speed_init;
 			
 				if(!up) begin
@@ -57,7 +57,7 @@ begin
 				end
 			end
 			
-			3'd2: begin //long vert rec
+			4'd2: begin //long vert rec
 				if( ref_y < (vert_size - 4*block_size)) ref_y <= ref_y + speed_init;
 			
 				if(!up) begin
@@ -74,7 +74,209 @@ begin
 				end
 			
 			end
+
+			4'd3: begin 
+				if( ref_y < (vert_size - 2*block_size)) ref_y <= ref_y + speed_init;
+			
+				if(!up) begin
+					start_over <= 1;
+				end
+				else if(!left && !hit) begin
+					if(ref_x >= 2*block_size) ref_x <= ref_x - block_size;
+				end
+				else if(!down && !stop) begin
+					if(ref_y < (vert_size - 2*block_size)) ref_y <= ref_y + block_size;
+				end
+				else if(!right && !hit) begin
+					if(ref_x < (hori_size - 2*block_size)) ref_x <= ref_x + block_size;
+				end
+			end
+			
+			4'd4: begin
+				if( ref_y < (vert_size - 3*block_size)) ref_y <= ref_y + speed_init;
+			
+				if(!up) begin
+					start_over <= 1;
+				end
+				else if(!left && !hit) begin
+					if(ref_x >= block_size) ref_x <= ref_x - block_size;
+				end
+				else if(!down && !stop) begin
+					if(ref_y < (vert_size - 3*block_size)) ref_y <= ref_y + block_size;
+				end
+				else if(!right && !hit) begin
+					if(ref_x < (hori_size - 2*block_size)) ref_x <= ref_x + block_size;
+				end
+			end
+			
+			4'd5: begin
+				if( ref_y < (vert_size - 2*block_size)) ref_y <= ref_y + speed_init;
+			
+				if(!up) begin
+					start_over <= 1;
+				end
+				else if(!left && !hit) begin
+					if(ref_x >= block_size) ref_x <= ref_x - block_size;
+				end
+				else if(!down && !stop) begin
+					if(ref_y < (vert_size - 2*block_size)) ref_y <= ref_y + block_size;
+				end
+				else if(!right && !hit) begin
+					if(ref_x < (hori_size - 3*block_size)) ref_x <= ref_x + block_size;
+				end
+			end
+			4'd6: begin
+				if( ref_y < (vert_size - 3*block_size)) ref_y <= ref_y + speed_init;
+			
+				if(!up) begin
+					start_over <= 1;
+				end
+				else if(!left && !hit) begin
+					if(ref_x >= 2*block_size) ref_x <= ref_x - block_size;
+				end
+				else if(!down && !stop) begin
+					if(ref_y < (vert_size - 3*block_size)) ref_y <= ref_y + block_size;
+				end
+				else if(!right && !hit) begin
+					if(ref_x < (hori_size - block_size)) ref_x <= ref_x + block_size;
+				end
+			end
 		
+			4'd7: begin
+				if( ref_y < (vert_size - 3*block_size)) ref_y <= ref_y + speed_init;
+			
+				if(!up) begin
+					start_over <= 1;
+				end
+				else if(!left && !hit) begin
+					if(ref_x >= block_size) ref_x <= ref_x - block_size;
+				end
+				else if(!down && !stop) begin
+					if(ref_y < (vert_size - 3*block_size)) ref_y <= ref_y + block_size;
+				end
+				else if(!right && !hit) begin
+					if(ref_x < (hori_size - 2*block_size)) ref_x <= ref_x + block_size;
+				end
+			end
+			
+			4'd8: begin
+				if( ref_y < (vert_size - block_size)) ref_y <= ref_y + speed_init;
+			
+				if(!up) begin
+					start_over <= 1;
+				end
+				else if(!left && !hit) begin
+					if(ref_x >= block_size) ref_x <= ref_x - block_size;
+				end
+				else if(!down && !stop) begin
+					if(ref_y < (vert_size - 2*block_size)) ref_y <= ref_y + block_size;
+				end
+				else if(!right && !hit) begin
+					if(ref_x < (hori_size - 3*block_size)) ref_x <= ref_x + block_size;
+				end
+			end
+			
+			4'd9: begin
+				if( ref_y < (vert_size - 3*block_size)) ref_y <= ref_y + speed_init;
+			
+				if(!up) begin
+					start_over <= 1;
+				end
+				else if(!left && !hit) begin
+					if(ref_x >= block_size) ref_x <= ref_x - block_size;
+				end
+				else if(!down && !stop) begin
+					if(ref_y < (vert_size - 3*block_size)) ref_y <= ref_y + block_size;
+				end
+				else if(!right && !hit) begin
+					if(ref_x < (hori_size - 2*block_size)) ref_x <= ref_x + block_size;
+				end
+			end
+			
+			4'd10: begin
+				if( ref_y < (vert_size - 2*block_size)) ref_y <= ref_y + speed_init;
+			
+				if(!up) begin
+					start_over <= 1;
+				end
+				else if(!left && !hit) begin
+					if(ref_x >= 3*block_size) ref_x <= ref_x - block_size;
+				end
+				else if(!down && !stop) begin
+					if(ref_y < (vert_size - 2*block_size)) ref_y <= ref_y + block_size;
+				end
+				else if(!right && !hit) begin
+					if(ref_x < (hori_size - block_size)) ref_x <= ref_x + block_size;
+				end
+			end
+		
+			4'd11: begin
+				if( ref_y < (vert_size - 3*block_size)) ref_y <= ref_y + speed_init;
+			
+				if(!up) begin
+					start_over <= 1;
+				end
+				else if(!left && !hit) begin
+					if(ref_x >= block_size) ref_x <= ref_x - block_size;
+				end
+				else if(!down && !stop) begin
+					if(ref_y < (vert_size - 2*block_size)) ref_y <= ref_y + block_size;
+				end
+				else if(!right && !hit) begin
+					if(ref_x < (hori_size - 2*block_size)) ref_x <= ref_x + block_size;
+				end
+			end
+		
+			4'd12: begin
+				if( ref_y < (vert_size - 2*block_size)) ref_y <= ref_y + speed_init;
+			
+				if(!up) begin
+					start_over <= 1;
+				end
+				else if(!left && !hit) begin
+					if(ref_x >= 2*block_size) ref_x <= ref_x - block_size;
+				end
+				else if(!down && !stop) begin
+					if(ref_y < (vert_size - 2*block_size)) ref_y <= ref_y + block_size;
+				end
+				else if(!right && !hit) begin
+					if(ref_x < (hori_size - 2*block_size)) ref_x <= ref_x + block_size;
+				end
+			end
+			
+			4'd13: begin
+				if( ref_y < (vert_size - 3*block_size)) ref_y <= ref_y + speed_init;
+			
+				if(!up) begin
+					start_over <= 1;
+				end
+				else if(!left && !hit) begin
+					if(ref_x >= 2*block_size) ref_x <= ref_x - block_size;
+				end
+				else if(!down && !stop) begin
+					if(ref_y < (vert_size - 3*block_size)) ref_y <= ref_y + block_size;
+				end
+				else if(!right && !hit) begin
+					if(ref_x < (hori_size - block_size)) ref_x <= ref_x + block_size;
+				end
+			end
+			
+			4'd14: begin
+				if( ref_y < (vert_size - 2*block_size)) ref_y <= ref_y + speed_init;
+			
+				if(!up) begin
+					start_over <= 1;
+				end
+				else if(!left && !hit) begin
+					if(ref_x >= block_size) ref_x <= ref_x - block_size;
+				end
+				else if(!down && !stop) begin
+					if(ref_y < (vert_size - 2*block_size)) ref_y <= ref_y + block_size;
+				end
+				else if(!right && !hit) begin
+					if(ref_x < (hori_size - 3*block_size)) ref_x <= ref_x + block_size;
+				end
+			end
 		
 			default: //square
 			begin
