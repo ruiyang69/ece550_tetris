@@ -1,9 +1,9 @@
-module color_mux(iVGA_CLK, ref_x, ref_y, ADDR, sel, stop, hit, shape, change_shape, start_over, clear);
+module color_mux(iVGA_CLK, ref_x, ref_y, ADDR, sel, stop, hit, shape, change_shape, start_over, clear, fall_down_clk);
 
 //inputs outputs
 input [9:0] ref_x, ref_y;
 input [18:0] ADDR;
-input iVGA_CLK, change_shape, start_over;
+input iVGA_CLK, change_shape, start_over, fall_down_clk;
 
 output reg sel, stop, hit, clear;
 output reg [31:0] shape;
@@ -21,7 +21,7 @@ reg [31:0] count;
 reg [31:0] score;
 reg [31:0] block_size, hori_size, vert_size;
 
-reg clock_by_2;
+//reg clock_by_2;
 
 //initial block
 initial begin
@@ -30,7 +30,7 @@ initial begin
 	hit = 0;
 	score = 0;
 	shape = 4'd0;
-	clock_by_2 = 0;
+	//clock_by_2 = 0;
 	block_size = 32'd20;
 	hori_size = 32'd480;
 	vert_size = 32'd480;
@@ -38,22 +38,17 @@ initial begin
 end
 
 //clock divider
-always @(posedge iVGA_CLK) begin
-	count <= count + 1;
-	if(count >= 32'd1000) begin
-		count <= 0;
-		clock_by_2 = !clock_by_2;
-	end
-	
-end
+//always @(posedge iVGA_CLK) begin
+//	count <= count + 1;
+//	if(count >= 32'd3500000) begin
+//		count <= 0;
+//		clock_by_2 = !clock_by_2;
+//	end
+//	
+//end
 
 //shape and cordinates calc
 always @(posedge ADDR) begin
-	x = ADDR%640;
-	y = ADDR/640;
-	print_x = x/20;
-	print_y = y/20;
-	print_cor = print_y * 32 + print_x; //display blocks or background
 	mat_x = ref_x/block_size;
 	mat_y = ref_y/block_size;
 	exc_1 = 0;
@@ -137,7 +132,7 @@ always @(posedge ADDR) begin
 		
 		4'd3: begin  // one up center, three down a row
 			xl = ref_x - block_size;
-			xr = ref_x + block_size;
+			xr = ref_x + 2*block_size;
 			yu = ref_y;
 			yd = ref_y + 2*block_size;
 			cor_1 = mat_y * 32 + mat_x;
@@ -315,8 +310,8 @@ always @(posedge ADDR) begin
 			exc_2 = cor_4 - 1;
 			
 			cor_stop_1 = cor_3 - 1; 
-			cor_stop_2 = cor_4 + 1;
-			cor_stop_3 = cor_4 + 2;
+			cor_stop_2 = 0;
+			cor_stop_3 = 0;
 			cor_stop_4 = (mat_y+3) * 32 + mat_x + 1;
 			
 			cor_hit_left_1 = cor_1 - 1;
@@ -766,7 +761,7 @@ always @(posedge ADDR) begin
 end
 
 //hit logic
-always @(posedge iVGA_CLK) begin
+always @(posedge ADDR) begin
 	if ((ref_x<block_size) || (exist[cor_hit_left_1]!=0) || (exist[cor_hit_left_2]!=0) ||
 			(exist[cor_hit_left_3]!=0) || (exist[cor_hit_left_4]!=0) || ref_x >=480)
 	begin 
@@ -806,12 +801,38 @@ always @(posedge ADDR) begin
 				default: shape = 4'd0;
 			endcase
 	end
+	else if (change_shape == 1) begin
+		case(shape)
+			4'd0: shape = 4'd0;
+			4'd1: shape = 4'd2;
+			4'd2: shape = 4'd1;
+			4'd3: shape = 4'd4;
+			4'd4: shape = 4'd5;
+			4'd5: shape = 4'd6;
+			4'd6: shape = 4'd3;
+			4'd7: shape = 4'd8;
+			4'd8: shape = 4'd9;
+			4'd9: shape = 4'd10;
+			4'd10: shape = 4'd7;
+			4'd11: shape = 4'd12;
+			4'd12: shape = 4'd11;
+			4'd13: shape = 4'd14;
+			4'd14: shape = 4'd13;
+			default: shape = shape;
+		endcase
+	end
 end
 
 
 
 //display logic
 always @(ADDR) begin
+	x = ADDR%640;
+	y = ADDR/640;
+	print_x = x/20;
+	print_y = y/20;
+	print_cor = print_y * 32 + print_x; //display blocks or background
+	
 	if (exist[print_cor] != 1'b0) sel = 1;
 	else if(x>xl && x<xr && y>yu && y<yd && print_cor!=exc_1 && print_cor!=exc_2) sel = 1; //current block ref points
 	else if(x > 480 && x < 500) sel = 1;

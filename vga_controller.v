@@ -17,12 +17,14 @@ module vga_controller(iRST_n,
 							 shape,
 							 change_shape,
 							 start_over,
-							 clear
+							 clear,
+							 fall_down_clk,
+							 ADDR
 							 );
 
 	
 input iRST_n;
-input iVGA_CLK;
+input iVGA_CLK, fall_down_clk;
 output reg oBLANK_n;
 output reg oHS;
 output reg oVS;
@@ -55,7 +57,7 @@ end
 
 
 ///////// ////                     
-reg [18:0] ADDR;
+output reg [18:0] ADDR;
 reg [23:0] bgr_data;
 wire VGA_CLK_n;
 wire [7:0] index;
@@ -102,7 +104,8 @@ color_mux color_mux(
 	.shape(shape),
 	.change_shape(change_shape),
 	.start_over(start_over),
-	.clear(clear)
+	.clear(clear),
+	.fall_down_clk(fall_down_clk)
 	);
 	
 //////Color table output
