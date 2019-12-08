@@ -199,7 +199,7 @@ always @(posedge ADDR) begin
 			cor_stop_1 = exc_1; 
 			cor_stop_2 = 0;
 			cor_stop_3 = exc_2;
-			cor_stop_4 = 0;
+			cor_stop_4 = (mat_y+2) * 32 + mat_x + 1;
 			
 			cor_hit_left_1 = cor_1 - 1;
 			cor_hit_left_2 = 0;

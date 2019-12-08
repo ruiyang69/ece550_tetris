@@ -87,8 +87,9 @@ module skeleton(resetn,
 	assign leds = 8'b00101011;
 	
 	wire [9:0] ref_x, ref_y;
-	wire hit, stop, change_shape, reset_ack;
-	wire [3:0] shape;
+	wire hit, stop, change_shape, start_over, clear, fall_down_clk;
+	wire [31:0] shape;
+	wire [18:0] ADDR;
 			
 	// VGA
 	Reset_Delay			r0	(.iCLK(CLOCK_50),.oRESET(DLY_RST)	);
@@ -106,7 +107,10 @@ module skeleton(resetn,
 								 .hit(hit),
 								 .shape(shape),
 								 .change_shape(change_shape),
-								 .reset_ack(reset_ack)
+								 .start_over(start_over),
+								 .clear(clear),
+								 .fall_down_clk(fall_down_clk),
+								 .ADDR(ADDR)
 					);
 					
 	vga_controller vga_ins(.iRST_n(DLY_RST),
@@ -121,13 +125,16 @@ module skeleton(resetn,
 								 .left(left),
 								 .down(down),
 								 .right(right),
-								 .x_cor(ref_x),
-								 .y_cor(ref_y),
+								 .ref_x(ref_x),
+								 .ref_y(ref_y),
 								 .stop(stop),
 								 .hit(hit),
 								 .shape(shape),
 								 .change_shape(change_shape),
-								 .reset_ack(reset_ack)
+								 .start_over(start_over),
+								 .clear(clear),
+								 .fall_down_clk(fall_down_clk),
+								 .ADDR(ADDR)
 								 );
 	
 	

@@ -6,7 +6,7 @@ input [18:0] ADDR;
 output reg [9:0] ref_x, ref_y;
 output reg change_shape, start_over, fall_down_clk;
 
-reg [31:0] count;
+reg [31:0] count, count_1;
 reg [4:0] speed_init;
 reg [4:0] block_size;
 reg [9:0] hori_size;
@@ -17,6 +17,7 @@ initial begin
 	ref_x = 280;
 	ref_y = 0;
 	count = 0;
+	count_1 = 0;
 	speed_init = 5'd1;
 	change_shape = 0;
 	block_size = 5'd20;
@@ -24,29 +25,38 @@ initial begin
 	vert_size = 10'd480;
 	start_over = 0;
 	fall_down_clk = 0;
-//	change = 0;
 end
 
 always @(posedge ADDR) begin
-	if(!up) change_shape <= 1;
+	if(!up) begin
+		count_1 <= count_1 + 1;
+	end
+	if(count_1 >= 10000)
+	begin
+		change_shape <= 1;
+		count_1 <= 0;
+	end
+		
 	else if(change_shape == 1) change_shape <=0;
 end
 
 always @(posedge iVGA_CLK)
 begin
 	count <= count+1;
-	if (count >= 23'd3500000) begin
-		count <= 0;
-//		change_shape <= 0;
-		
-		fall_down_clk <= !fall_down_clk;
-		if(stop == 1 || start_over==1) begin
+	if(stop == 1 || start_over==1) begin
 			ref_x <= 280;
 			ref_y <= 0;
 			start_over <= 0;
 		end
 		
-		else begin
+	if (count >= 23'd3500000) begin
+		count <= 0;
+//		change_shape <= 0;
+		
+//		fall_down_clk <= !fall_down_clk;
+		
+		
+		begin
 			if(clear == 1) begin
 				speed_init = speed_init + 1;
 			end

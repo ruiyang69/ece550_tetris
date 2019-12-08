@@ -10,8 +10,8 @@ module vga_controller(iRST_n,
 							 left,
 							 down,
 							 right,
-							 x_cor,
-							 y_cor,
+							 ref_x,
+							 ref_y,
 							 stop,
 							 hit,
 							 shape,
@@ -32,28 +32,14 @@ output [7:0] b_data;
 output [7:0] g_data;  
 output [7:0] r_data;
 
-input [9:0] x_cor, y_cor;
 
 //recitation 6 inputs & variables
 input up, left, down, right, change_shape, start_over;  
 output stop, hit, clear;
 output [31:0] shape;
 
-reg [9:0] ref_x;
-reg [9:0] ref_y;
-
-
-always @(iVGA_CLK) begin
-	if (cBLANK_n == 1) begin
-		ref_x <= x_cor;
-		ref_y <= y_cor;
-	end
-	else begin
-		ref_x <= ref_x;
-		ref_y <= ref_y;
-	end
-	
-end
+input [9:0] ref_x;
+input [9:0] ref_y;
 
 
 ///////// ////                     
