@@ -762,13 +762,13 @@ end
 
 //hit logic
 always @(posedge ADDR) begin
-	if ((ref_x<block_size) || (exist[cor_hit_left_1]!=0) || (exist[cor_hit_left_2]!=0) ||
-			(exist[cor_hit_left_3]!=0) || (exist[cor_hit_left_4]!=0) || ref_x >=480)
+	if ((exist[cor_hit_left_1]!=0) || (exist[cor_hit_left_2]!=0) ||
+			(exist[cor_hit_left_3]!=0) || (exist[cor_hit_left_4]!=0))
 	begin 
 		hit = 1;
 	end
 	
-	else if((ref_y > (hori_size -1)) || (exist[cor_hit_right_1]!=0) || (exist[cor_hit_right_2]!=0) ||
+	else if((exist[cor_hit_right_1]!=0) || (exist[cor_hit_right_2]!=0) ||
 		 (exist[cor_hit_right_3]!=0) || (exist[cor_hit_right_4]!=0)) 
 	begin
 		hit = 1;

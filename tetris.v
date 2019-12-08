@@ -31,13 +31,14 @@ always @(posedge ADDR) begin
 	if(!up) begin
 		count_1 <= count_1 + 1;
 	end
-	if(count_1 >= 10000)
+	
+	if(count_1 >= 2000000)
 	begin
 		change_shape <= 1;
 		count_1 <= 0;
 	end
-		
 	else if(change_shape == 1) change_shape <=0;
+	
 end
 
 always @(posedge iVGA_CLK)
@@ -49,12 +50,8 @@ begin
 			start_over <= 0;
 		end
 		
-	if (count >= 23'd3500000) begin
+	if (count >= 23'd4500000) begin
 		count <= 0;
-//		change_shape <= 0;
-		
-//		fall_down_clk <= !fall_down_clk;
-		
 		
 		begin
 			if(clear == 1) begin
@@ -73,7 +70,7 @@ begin
 					if(ref_x >= block_size) ref_x <= ref_x - block_size;
 				end
 				else if(!down && !stop) begin
-					if(ref_y < (vert_size - block_size)) ref_y <= ref_y + block_size;
+					if(ref_y < (vert_size - block_size)) ref_y <= ref_y + 2*block_size;
 				end
 				else if(!right && !hit) begin
 					if(ref_x < (hori_size - 4*block_size)) ref_x <= ref_x + block_size;
@@ -83,15 +80,11 @@ begin
 			4'd2: begin //long vert rec
 				if( ref_y < (vert_size - 4*block_size)) ref_y <= ref_y + speed_init*block_size;
 			
-//				if(!up) begin
-//					change_shape <= 1;
-//				end
-//				else 
 				if(!left && !hit) begin
 					if(ref_x >= block_size) ref_x <= ref_x - block_size;
 				end
 				else if(!down && !stop) begin
-					if(ref_y < (vert_size - 4*block_size)) ref_y <= ref_y + block_size;
+					if(ref_y < (vert_size - 4*block_size)) ref_y <= ref_y + 2*block_size;
 				end
 				else if(!right && !hit) begin
 					if(ref_x < (hori_size - block_size)) ref_x <= ref_x + block_size;
@@ -110,7 +103,7 @@ begin
 					if(ref_x >= 2*block_size) ref_x <= ref_x - block_size;
 				end
 				else if(!down && !stop) begin
-					if(ref_y < (vert_size - 2*block_size)) ref_y <= ref_y + block_size;
+					if(ref_y < (vert_size - 2*block_size)) ref_y <= ref_y + 2*block_size;
 				end
 				else if(!right && !hit) begin
 					if(ref_x < (hori_size - 2*block_size)) ref_x <= ref_x + block_size;
@@ -128,7 +121,7 @@ begin
 					if(ref_x >= block_size) ref_x <= ref_x - block_size;
 				end
 				else if(!down && !stop) begin
-					if(ref_y < (vert_size - 3*block_size)) ref_y <= ref_y + block_size;
+					if(ref_y < (vert_size - 3*block_size)) ref_y <= ref_y + 2*block_size;
 				end
 				else if(!right && !hit) begin
 					if(ref_x < (hori_size - 2*block_size)) ref_x <= ref_x + block_size;
@@ -146,7 +139,7 @@ begin
 					if(ref_x >= block_size) ref_x <= ref_x - block_size;
 				end
 				else if(!down && !stop) begin
-					if(ref_y < (vert_size - 2*block_size)) ref_y <= ref_y + block_size;
+					if(ref_y < (vert_size - 2*block_size)) ref_y <= ref_y + 2*block_size;
 				end
 				else if(!right && !hit) begin
 					if(ref_x < (hori_size - 3*block_size)) ref_x <= ref_x + block_size;
@@ -163,7 +156,7 @@ begin
 					if(ref_x >= 2*block_size) ref_x <= ref_x - block_size;
 				end
 				else if(!down && !stop) begin
-					if(ref_y < (vert_size - 3*block_size)) ref_y <= ref_y + block_size;
+					if(ref_y < (vert_size - 3*block_size)) ref_y <= ref_y + 2*block_size;
 				end
 				else if(!right && !hit) begin
 					if(ref_x < (hori_size - block_size)) ref_x <= ref_x + block_size;
@@ -181,7 +174,7 @@ begin
 					if(ref_x >= block_size) ref_x <= ref_x - block_size;
 				end
 				else if(!down && !stop) begin
-					if(ref_y < (vert_size - 3*block_size)) ref_y <= ref_y + block_size;
+					if(ref_y < (vert_size - 3*block_size)) ref_y <= ref_y + 2*block_size;
 				end
 				else if(!right && !hit) begin
 					if(ref_x < (hori_size - 2*block_size)) ref_x <= ref_x + block_size;
@@ -199,7 +192,7 @@ begin
 					if(ref_x >= block_size) ref_x <= ref_x - block_size;
 				end
 				else if(!down && !stop) begin
-					if(ref_y < (vert_size - 2*block_size)) ref_y <= ref_y + block_size;
+					if(ref_y < (vert_size - 2*block_size)) ref_y <= ref_y + 2*block_size;
 				end
 				else if(!right && !hit) begin
 					if(ref_x < (hori_size - 3*block_size)) ref_x <= ref_x + block_size;
@@ -217,7 +210,7 @@ begin
 					if(ref_x >= block_size) ref_x <= ref_x - block_size;
 				end
 				else if(!down && !stop) begin
-					if(ref_y < (vert_size - 3*block_size)) ref_y <= ref_y + block_size;
+					if(ref_y < (vert_size - 3*block_size)) ref_y <= ref_y + 2*block_size;
 				end
 				else if(!right && !hit) begin
 					if(ref_x < (hori_size - 2*block_size)) ref_x <= ref_x + block_size;
@@ -235,7 +228,7 @@ begin
 					if(ref_x >= 3*block_size) ref_x <= ref_x - block_size;
 				end
 				else if(!down && !stop) begin
-					if(ref_y < (vert_size - 2*block_size)) ref_y <= ref_y + block_size;
+					if(ref_y < (vert_size - 2*block_size)) ref_y <= ref_y + 2*block_size;
 				end
 				else if(!right && !hit) begin
 					if(ref_x < (hori_size - block_size)) ref_x <= ref_x + block_size;
@@ -253,7 +246,7 @@ begin
 					if(ref_x >= block_size) ref_x <= ref_x - block_size;
 				end
 				else if(!down && !stop) begin
-					if(ref_y < (vert_size - 2*block_size)) ref_y <= ref_y + block_size;
+					if(ref_y < (vert_size - 2*block_size)) ref_y <= ref_y + 2*block_size;
 				end
 				else if(!right && !hit) begin
 					if(ref_x < (hori_size - 2*block_size)) ref_x <= ref_x + block_size;
@@ -271,7 +264,7 @@ begin
 					if(ref_x >= 2*block_size) ref_x <= ref_x - block_size;
 				end
 				else if(!down && !stop) begin
-					if(ref_y < (vert_size - 2*block_size)) ref_y <= ref_y + block_size;
+					if(ref_y < (vert_size - 2*block_size)) ref_y <= ref_y + 2*block_size;
 				end
 				else if(!right && !hit) begin
 					if(ref_x < (hori_size - 2*block_size)) ref_x <= ref_x + block_size;
@@ -289,7 +282,7 @@ begin
 					if(ref_x >= 2*block_size) ref_x <= ref_x - block_size;
 				end
 				else if(!down && !stop) begin
-					if(ref_y < (vert_size - 3*block_size)) ref_y <= ref_y + block_size;
+					if(ref_y < (vert_size - 3*block_size)) ref_y <= ref_y + 2*block_size;
 				end
 				else if(!right && !hit) begin
 					if(ref_x < (hori_size - block_size)) ref_x <= ref_x + block_size;
@@ -307,7 +300,7 @@ begin
 					if(ref_x >= block_size) ref_x <= ref_x - block_size;
 				end
 				else if(!down && !stop) begin
-					if(ref_y < (vert_size - 2*block_size)) ref_y <= ref_y + block_size;
+					if(ref_y < (vert_size - 2*block_size)) ref_y <= ref_y + 2*block_size;
 				end
 				else if(!right && !hit) begin
 					if(ref_x < (hori_size - 3*block_size)) ref_x <= ref_x + block_size;
@@ -326,7 +319,7 @@ begin
 					if(ref_x >= block_size) ref_x <= ref_x - block_size;
 				end
 				else if(!down && !stop) begin
-					if(ref_y < (vert_size - 2*block_size)) ref_y <= ref_y + block_size;
+					if(ref_y < (vert_size - 2*block_size)) ref_y <= ref_y + 2*block_size;
 				end
 				else if(!right && !hit) begin
 					if(ref_x < (hori_size - 2*block_size)) ref_x <= ref_x + block_size;
