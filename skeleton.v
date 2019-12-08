@@ -60,7 +60,13 @@ module skeleton(resetn,
 	//assign clock = inclock;
 	
 	// your processor
-	processor myprocessor();
+	wire change_shape;
+	wire [31:0] shape;
+	pro_ske pro_ske(
+						.clock(clock),
+						.change_shape(change_shape),
+						.shape_out(shape)
+						);
 	
 	// keyboard controller
 	PS2_Interface myps2(clock, resetn, ps2_clock, ps2_data, ps2_key_data, ps2_key_pressed, ps2_out);
@@ -87,8 +93,7 @@ module skeleton(resetn,
 	assign leds = 8'b00101011;
 	
 	wire [9:0] ref_x, ref_y;
-	wire hit, stop, change_shape, start_over, clear, fall_down_clk;
-	wire [31:0] shape;
+	wire hit, stop, start_over, clear, fall_down_clk;
 	wire [18:0] ADDR;
 			
 	// VGA
@@ -134,7 +139,7 @@ module skeleton(resetn,
 								 .start_over(start_over),
 								 .clear(clear),
 								 .fall_down_clk(fall_down_clk),
-								 .ADDR(ADDR)
+								 .ADDR(ADDR),
 								 );
 	
 	

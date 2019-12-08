@@ -6,7 +6,7 @@ input [18:0] ADDR;
 input iVGA_CLK, change_shape, start_over, fall_down_clk;
 
 output reg sel, stop, hit, clear;
-output reg [31:0] shape;
+input [31:0] shape;
 
 
 //local variable
@@ -29,7 +29,6 @@ initial begin
 	stop = 0;
 	hit = 0;
 	score = 0;
-	shape = 4'd0;
 	//clock_by_2 = 0;
 	block_size = 32'd20;
 	hori_size = 32'd480;
@@ -780,48 +779,48 @@ end
 
 
 //shape change logic
-always @(posedge ADDR) begin
-	if(ref_x == 10'd280 && ref_y == 0) begin
-			case(shape)
-				4'd0: shape = 4'd1;
-				4'd1: shape = 4'd2;
-				4'd2: shape = 4'd3;
-				4'd3: shape = 4'd4;
-				4'd4: shape = 4'd5;
-				4'd5: shape = 4'd6;
-				4'd6: shape = 4'd7;
-				4'd7: shape = 4'd8;
-				4'd8: shape = 4'd9;
-				4'd9: shape = 4'd10;
-				4'd10: shape = 4'd11;
-				4'd11: shape = 4'd12;
-				4'd12: shape = 4'd13;
-				4'd13: shape = 4'd14;
-				4'd14: shape = 4'd0;
-				default: shape = 4'd0;
-			endcase
-	end
-	else if (change_shape == 1) begin
-		case(shape)
-			4'd0: shape = 4'd0;
-			4'd1: shape = 4'd2;
-			4'd2: shape = 4'd1;
-			4'd3: shape = 4'd4;
-			4'd4: shape = 4'd5;
-			4'd5: shape = 4'd6;
-			4'd6: shape = 4'd3;
-			4'd7: shape = 4'd8;
-			4'd8: shape = 4'd9;
-			4'd9: shape = 4'd10;
-			4'd10: shape = 4'd7;
-			4'd11: shape = 4'd12;
-			4'd12: shape = 4'd11;
-			4'd13: shape = 4'd14;
-			4'd14: shape = 4'd13;
-			default: shape = shape;
-		endcase
-	end
-end
+//always @(posedge ADDR) begin
+//	if(ref_x == 10'd280 && ref_y == 0) begin
+//			case(shape)
+//				4'd0: shape = 4'd1;
+//				4'd1: shape = 4'd2;
+//				4'd2: shape = 4'd3;
+//				4'd3: shape = 4'd4;
+//				4'd4: shape = 4'd5;
+//				4'd5: shape = 4'd6;
+//				4'd6: shape = 4'd7;
+//				4'd7: shape = 4'd8;
+//				4'd8: shape = 4'd9;
+//				4'd9: shape = 4'd10;
+//				4'd10: shape = 4'd11;
+//				4'd11: shape = 4'd12;
+//				4'd12: shape = 4'd13;
+//				4'd13: shape = 4'd14;
+//				4'd14: shape = 4'd0;
+//				default: shape = 4'd0;
+//			endcase
+//	end
+//	else if (change_shape == 1) begin
+//		case(shape)
+//			4'd0: shape = 4'd0;
+//			4'd1: shape = 4'd2;
+//			4'd2: shape = 4'd1;
+//			4'd3: shape = 4'd4;
+//			4'd4: shape = 4'd5;
+//			4'd5: shape = 4'd6;
+//			4'd6: shape = 4'd3;
+//			4'd7: shape = 4'd8;
+//			4'd8: shape = 4'd9;
+//			4'd9: shape = 4'd10;
+//			4'd10: shape = 4'd7;
+//			4'd11: shape = 4'd12;
+//			4'd12: shape = 4'd11;
+//			4'd13: shape = 4'd14;
+//			4'd14: shape = 4'd13;
+//			default: shape = shape;
+//		endcase
+//	end
+//end
 
 
 

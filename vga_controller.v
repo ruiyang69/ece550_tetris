@@ -36,7 +36,7 @@ output [7:0] r_data;
 //recitation 6 inputs & variables
 input up, left, down, right, change_shape, start_over;  
 output stop, hit, clear;
-output [31:0] shape;
+input [31:0] shape;
 
 input [9:0] ref_x;
 input [9:0] ref_y;
