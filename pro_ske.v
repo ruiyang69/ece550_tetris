@@ -9,10 +9,10 @@
  * inspect which signals the processor tries to assert when.
  */
 
-module pro_ske(clock, change_shape, shape_out);
+module pro_ske(clock, change_shape, shape_out, stop, score, clear, start_over);
 	 
-    input clock, change_shape;
-	 output [31:0] shape_out;
+    input clock, change_shape, stop, clear, start_over;
+	 output [31:0] shape_out, score;
 	 
 	 wire clock_imem, clock_dmem, clock_processor, clock_regfile;
 	 
@@ -67,7 +67,11 @@ module pro_ske(clock, change_shape, shape_out);
         data_readRegA,
         data_readRegB,
 		  change_shape,
-		  shape_out
+		  shape_out,
+		  stop,
+		  score,
+		  clear,
+		  start_over
     );
 
     /** PROCESSOR **/
@@ -94,26 +98,6 @@ module pro_ske(clock, change_shape, shape_out);
         data_writeReg,                  // O: Data to write to for regfile
         data_readRegA,                  // I: Data from port A of regfile
         data_readRegB                   // I: Data from port B of regfile
-//		  ,
-//		  
-//	 //test signals
-//	 rstatus_mux_sel_test,
-//	 rstatus_mux_out_test,
-//	 rd_mux_out_test,
-//	 rd_mux_sel_test,
-//	 overflow_test,
-//	 isNotEqual_test,
-//	 isLessThan_test,
-//	 bne_test,
-//	 blt_test,
-//	 br_mux_sel_test,
-//	 imm_test,
-//	 pc_in_test,
-//	 pc_out_test,
-//	 alu_ina_test,
-//	 alu_inb_test,
-//	 aluinb_out_test,
-//	 alu_out_test
     );
 
 endmodule

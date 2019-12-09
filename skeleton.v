@@ -60,12 +60,17 @@ module skeleton(resetn,
 	//assign clock = inclock;
 	
 	// your processor
-	wire change_shape;
+	wire change_shape, stop, clear, start_over;
 	wire [31:0] shape;
+	wire [31:0] score;
+	
 	pro_ske pro_ske(
 						.clock(clock),
 						.change_shape(change_shape),
-						.shape_out(shape)
+						.shape_out(shape),
+						.stop(stop),
+						.score(score),
+						.clear(clear)
 						);
 	
 	// keyboard controller
@@ -93,8 +98,9 @@ module skeleton(resetn,
 	assign leds = 8'b00101011;
 	
 	wire [9:0] ref_x, ref_y;
-	wire hit, stop, start_over, clear, fall_down_clk;
+	wire hit;
 	wire [18:0] ADDR;
+	
 			
 	// VGA
 	Reset_Delay			r0	(.iCLK(CLOCK_50),.oRESET(DLY_RST)	);
@@ -114,8 +120,8 @@ module skeleton(resetn,
 								 .change_shape(change_shape),
 								 .start_over(start_over),
 								 .clear(clear),
-								 .fall_down_clk(fall_down_clk),
-								 .ADDR(ADDR)
+								 .ADDR(ADDR),
+								 .score(score)
 					);
 					
 	vga_controller vga_ins(.iRST_n(DLY_RST),
@@ -138,8 +144,8 @@ module skeleton(resetn,
 								 .change_shape(change_shape),
 								 .start_over(start_over),
 								 .clear(clear),
-								 .fall_down_clk(fall_down_clk),
 								 .ADDR(ADDR),
+								 .score(score)
 								 );
 	
 	

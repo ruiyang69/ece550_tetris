@@ -18,13 +18,13 @@ module vga_controller(iRST_n,
 							 change_shape,
 							 start_over,
 							 clear,
-							 fall_down_clk,
-							 ADDR
+							 ADDR,
+							 score
 							 );
 
 	
 input iRST_n;
-input iVGA_CLK, fall_down_clk;
+input iVGA_CLK;
 output reg oBLANK_n;
 output reg oHS;
 output reg oVS;
@@ -34,8 +34,9 @@ output [7:0] r_data;
 
 
 //recitation 6 inputs & variables
-input up, left, down, right, change_shape, start_over;  
-output stop, hit, clear;
+input up, left, down, right, change_shape;
+output stop, hit, clear, start_over;
+input [31:0] score;
 input [31:0] shape;
 
 input [9:0] ref_x;
@@ -78,8 +79,8 @@ img_data	img_data_inst (
 	
 /////////////////////////
 //////Add switch-input logic here
-wire sel;
-color_mux color_mux(
+wire [1:0] sel;
+color_and_shape cas(
 	.iVGA_CLK(iVGA_CLK),
 	.ref_x(ref_x),
 	.ref_y(ref_y),
@@ -91,7 +92,7 @@ color_mux color_mux(
 	.change_shape(change_shape),
 	.start_over(start_over),
 	.clear(clear),
-	.fall_down_clk(fall_down_clk)
+	.score(score)
 	);
 	
 //////Color table output
@@ -104,6 +105,7 @@ img_index	img_index_inst (
 //////latch valid data at falling edge;
 always@(posedge VGA_CLK_n)  begin
 	if(sel == 0)	bgr_data <= bgr_data_raw;
+	else if (sel == 2'd1) bgr_data = 24'hff0000;
 	else bgr_data <= 24'h0a0b0c;
 end
  
