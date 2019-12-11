@@ -9,7 +9,7 @@ module regfile(
 	
 	input change_shape, stop;
 	output [31:0] data_readRegA, data_readRegB, shape_out;
-	output reg [31:0] score;
+	output [31:0] score;
 
 	wire [31:0] change_shape_32, stop_32, clear_32;
 	assign change_shape_32 = {31'b0, change_shape};
@@ -21,8 +21,9 @@ module regfile(
 	
 	initial begin
 		prime = 32'd3989;
-		score = 0;
+		//score = 0;
 	end
+	
 	
 	always @(posedge clock)
 	begin
@@ -36,46 +37,52 @@ module regfile(
 //					end
 //			end
 //		else begin
-//			if(ctrl_writeEnable && ctrl_writeReg != 5'd0) begin
-//				registers[ctrl_writeReg] = data_writeReg;
-//			end
+			if(ctrl_writeEnable && ctrl_writeReg != 5'd0) begin
+				registers[ctrl_writeReg] = data_writeReg;
+			end
 		
 			registers[2] = change_shape_32;
-			registers[3] = clear_32;
+			
+			registers[3] = 32'd6;
+			registers[4] = 32'd10;
+			registers[5] = 32'd12;
+			registers[6] = 32'd14;
+			registers[8] = 32'd2;
 			registers[11] = stop_32;
+			registers[12] = clear_32;
 	
 			if(registers[11] != 0) begin
 				registers[1] = registers[1] ^ prime;
-				registers[1] = registers[1] % 12;
+				registers[1] = registers[1] % 15;
 			end
-			if(registers[3] != 0) begin
-				score = score + 1;
-			end
-			
-			if(registers[1] == 32'd2 && registers[2]!=0) begin
-				registers[1] = 1;
-			end
-			else if(registers[1]==32'd6 && registers[2]!=0) begin
-				registers[1] = 32'd3;
-			end
-			else if(registers[1]==32'd10 && registers[2]!=0) begin
-				registers[1] = 32'd7;
-			end
-			else if(registers[1]==32'd12 && registers[2]!=0) begin
-				registers[1] = 32'd11;
-			end
-			else if(registers[1]>=32'd14 && registers[2]!=0) begin
-				registers[1] = 32'd13;
-			end
-			else if(registers[2] != 0) begin
-				registers[1] = registers[1] + 1;
+			if(registers[12] != 0) begin
+				registers[13] = registers[13] + 1;
 			end
 			
-			if(start_over == 1) begin
-				score = 0;
+//			if(registers[1] == 32'd2 && registers[2]!=0) begin
+//				registers[1] = 1;
+//			end
+//			else if(registers[1]==32'd6 && registers[2]!=0) begin
+//				registers[1] = 32'd3;
+//			end
+//			else if(registers[1]==32'd10 && registers[2]!=0) begin
+//				registers[1] = 32'd7;
+//			end
+//			else if(registers[1]==32'd12 && registers[2]!=0) begin
+//				registers[1] = 32'd11;
+//			end
+//			if(registers[1]>=32'd14 && registers[2]!=0) begin
+//				registers[1] = 32'd13;
+//			end
+//			else if(registers[2] != 0) begin
+//				registers[1] = registers[1] + 1;
+//			end
+			
+			if(start_over == 0) begin
+				//score = 0;
 				registers[2] = 0;
-				registers[3] = 0;
 				registers[11] = 0;
+				registers[12] = 0;
 			end
 			
 	end
@@ -83,5 +90,6 @@ module regfile(
 	assign data_readRegA = registers[ctrl_readRegA];
 	assign data_readRegB = registers[ctrl_readRegB];
 	assign shape_out = registers[1];
+	assign score = registers[13];
 	
 endmodule

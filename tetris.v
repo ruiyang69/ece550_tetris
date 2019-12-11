@@ -7,7 +7,7 @@ input [18:0] ADDR;
 output reg [9:0] ref_x, ref_y;
 output reg change_shape;
 
-reg [31:0] count, count_1;
+reg [31:0] count, count_1, count_2, vga_2hz;
 reg [4:0] block_size;
 reg [9:0] hori_size;
 reg [9:0] vert_size;
@@ -25,6 +25,7 @@ initial begin
 	vert_size = 10'd480;
 	limit_1 = 32'd4500000;
 	limit_2 = 32'd3000000;
+	vga_2hz = 32'd12500000;
 	comp_value = limit_1;
 end
 
@@ -54,11 +55,32 @@ end
 always @(posedge iVGA_CLK)
 begin
 	count <= count+1;
-	if(stop == 1 || start_over==1) begin
+	count_2 <= count_2 + 1;
+	if(stop == 1 || start_over==0) begin
 			ref_x <= 280;
 			ref_y <= 0;
 		end
 		
+	if(count_2 >= vga_2hz) begin
+		count_2 <= 0;
+		case (shape) 
+		4'd1:	if( ref_y < (vert_size - block_size)) ref_y <= ref_y + block_size;
+		4'd2:	if( ref_y < (vert_size - 4*block_size)) ref_y <= ref_y + block_size;
+		4'd3:	if( ref_y < (vert_size - 2*block_size)) ref_y <= ref_y + block_size;
+		4'd4:	if( ref_y < (vert_size - 3*block_size)) ref_y <= ref_y + block_size;
+		4'd5:	if( ref_y < (vert_size - 2*block_size)) ref_y <= ref_y + block_size;
+		4'd6:	if( ref_y < (vert_size - 3*block_size)) ref_y <= ref_y + block_size;
+		4'd7:	if( ref_y < (vert_size - 3*block_size)) ref_y <= ref_y + block_size;
+		4'd8:	if( ref_y < (vert_size - block_size)) ref_y <= ref_y + block_size;
+		4'd9:	if( ref_y < (vert_size - 3*block_size)) ref_y <= ref_y + block_size;
+		4'd10:	if( ref_y < (vert_size - 2*block_size)) ref_y <= ref_y + block_size;
+		4'd11:	if( ref_y < (vert_size - 3*block_size)) ref_y <= ref_y + block_size;
+		4'd12:	if( ref_y < (vert_size - 2*block_size)) ref_y <= ref_y + block_size;
+		4'd13:	if( ref_y < (vert_size - 3*block_size)) ref_y <= ref_y + block_size;
+		4'd14:	if( ref_y < (vert_size - 2*block_size)) ref_y <= ref_y + block_size;
+		default:	if( ref_y < (vert_size - 2*block_size)) ref_y <= ref_y + block_size;
+		endcase
+	end
 		
 	if (count >= comp_value) begin
 		count <= 0;
@@ -66,7 +88,7 @@ begin
 		begin
 			case(shape)
 			4'd1: begin //long hori rectangle
-				if( ref_y < (vert_size - block_size)) ref_y <= ref_y + block_size;
+//				if( ref_y < (vert_size - block_size)) ref_y <= ref_y + block_size;
 			
 //				if(!up) begin
 //					change_shape <= 1;
@@ -84,7 +106,7 @@ begin
 			end
 			
 			4'd2: begin //long vert rec
-				if( ref_y < (vert_size - 4*block_size)) ref_y <= ref_y + block_size;
+//				if( ref_y < (vert_size - 4*block_size)) ref_y <= ref_y + block_size;
 			
 				if(!left && !hit) begin
 					if(ref_x >= block_size) ref_x <= ref_x - block_size;
@@ -99,7 +121,7 @@ begin
 			end
 
 			4'd3: begin 
-				if( ref_y < (vert_size - 2*block_size)) ref_y <= ref_y + block_size;
+//				if( ref_y < (vert_size - 2*block_size)) ref_y <= ref_y + block_size;
 			
 //				if(!up) begin
 //					change_shape <= 1;
@@ -117,7 +139,7 @@ begin
 			end
 			
 			4'd4: begin
-				if( ref_y < (vert_size - 3*block_size)) ref_y <= ref_y + block_size;
+//				if( ref_y < (vert_size - 3*block_size)) ref_y <= ref_y + block_size;
 			
 //				if(!up) begin
 //					change_shape <= 1;
@@ -135,7 +157,7 @@ begin
 			end
 			
 			4'd5: begin
-				if( ref_y < (vert_size - 2*block_size)) ref_y <= ref_y + block_size;
+//				if( ref_y < (vert_size - 2*block_size)) ref_y <= ref_y + block_size;
 			
 //				if(!up) begin
 //					change_shape <= 1;
@@ -152,7 +174,7 @@ begin
 				end
 			end
 			4'd6: begin
-				if( ref_y < (vert_size - 3*block_size)) ref_y <= ref_y + block_size;
+//				if( ref_y < (vert_size - 3*block_size)) ref_y <= ref_y + block_size;
 			
 //				if(!up) begin
 //					change_shape <= 1;
@@ -170,7 +192,7 @@ begin
 			end
 		
 			4'd7: begin
-				if( ref_y < (vert_size - 3*block_size)) ref_y <= ref_y + block_size;
+//				if( ref_y < (vert_size - 3*block_size)) ref_y <= ref_y + block_size;
 			
 //				if(!up) begin
 //					change_shape <= 1;
@@ -188,7 +210,7 @@ begin
 			end
 			
 			4'd8: begin
-				if( ref_y < (vert_size - block_size)) ref_y <= ref_y + block_size;
+//				if( ref_y < (vert_size - block_size)) ref_y <= ref_y + block_size;
 			
 //				if(!up) begin
 //					change_shape <= 1;
@@ -206,7 +228,7 @@ begin
 			end
 			
 			4'd9: begin
-				if( ref_y < (vert_size - 3*block_size)) ref_y <= ref_y + block_size;
+//				if( ref_y < (vert_size - 3*block_size)) ref_y <= ref_y + block_size;
 			
 //				if(!up) begin
 //					change_shape <= 1;
@@ -224,7 +246,7 @@ begin
 			end
 			
 			4'd10: begin
-				if( ref_y < (vert_size - 2*block_size)) ref_y <= ref_y + block_size;
+//				if( ref_y < (vert_size - 2*block_size)) ref_y <= ref_y + block_size;
 			
 //				if(!up) begin
 //					change_shape <= 1;
@@ -242,7 +264,7 @@ begin
 			end
 		
 			4'd11: begin
-				if( ref_y < (vert_size - 3*block_size)) ref_y <= ref_y + block_size;
+//				if( ref_y < (vert_size - 3*block_size)) ref_y <= ref_y + block_size;
 			
 //				if(!up) begin
 //					change_shape <= 1;
@@ -260,7 +282,7 @@ begin
 			end
 		
 			4'd12: begin
-				if( ref_y < (vert_size - 2*block_size)) ref_y <= ref_y + block_size;
+//				if( ref_y < (vert_size - 2*block_size)) ref_y <= ref_y + block_size;
 			
 //				if(!up) begin
 //					change_shape <= 1;
@@ -278,7 +300,7 @@ begin
 			end
 			
 			4'd13: begin
-				if( ref_y < (vert_size - 3*block_size)) ref_y <= ref_y + block_size;
+//				if( ref_y < (vert_size - 3*block_size)) ref_y <= ref_y + block_size;
 			
 //				if(!up) begin
 //					change_shape <= 1;
@@ -296,7 +318,7 @@ begin
 			end
 			
 			4'd14: begin
-				if( ref_y < (vert_size - 2*block_size)) ref_y <= ref_y + block_size;
+//				if( ref_y < (vert_size - 2*block_size)) ref_y <= ref_y + block_size;
 			
 //				if(!up) begin
 //					change_shape <= 1;
@@ -315,7 +337,7 @@ begin
 		
 			default: //square
 			begin
-				if( ref_y < (vert_size - 2*block_size)) ref_y <= ref_y + block_size;
+//				if( ref_y < (vert_size - 2*block_size)) ref_y <= ref_y + block_size;
 			
 //				if(!up) begin
 //					change_shape <= 1;
